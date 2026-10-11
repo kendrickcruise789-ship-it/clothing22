@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Product, Currency } from '../types';
 import { formatPrice } from '../utils/currency';
+import { SafeImage } from './SafeImage';
 import { Heart, Eye, ShoppingBag } from 'lucide-react';
 
 interface ProductCardProps {
@@ -22,7 +23,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [showQuickSizes, setShowQuickSizes] = useState(false);
-  const [imageError, setImageError] = useState(false);
 
   // Check low stock count
   const totalStock = Object.values(product.stockPerSize).reduce((acc, curr) => acc + curr, 0);
@@ -32,31 +32,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       
       {/* Visual Image Slot */}
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F4EFEA]">
-        {!imageError ? (
-          <img
-            src={product.image}
-            alt={product.title}
-            referrerPolicy="no-referrer"
-            onError={(e) => {
-              const target = e.currentTarget;
-              if (!target.dataset.triedPublic && product.image) {
-                target.dataset.triedPublic = 'true';
-                const filename = product.image.split('/').pop()?.split('?')[0];
-                if (filename) {
-                  target.src = `/images/${filename}`;
-                  return;
-                }
-              }
-              setImageError(true);
-            }}
-            className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-          />
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-[#F4EFEA] text-[#7A6B5D] text-center">
-            <span className="font-serif text-lg text-[#1E1B18] mb-1">{product.title}</span>
-            <span className="text-xs uppercase tracking-wider">{product.category}</span>
-          </div>
-        )}
+        <SafeImage
+          src={product.image}
+          alt={product.title}
+          category={product.category}
+          fallbackLabel={product.title}
+          className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+        />
 
         {/* Wishlist Button (Top Right) */}
         <button

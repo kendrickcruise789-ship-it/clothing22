@@ -69,16 +69,60 @@ export default function App() {
   const [activeProductModal, setActiveProductModal] = useState<Product | null>(null);
   const [checkoutModalOpen, setCheckoutModalOpen] = useState<boolean>(false);
 
-  // Sync category changes with filters
+  // Category normalization & matching helper
+  const matchesCategory = (productCategory: string, targetCategory: string): boolean => {
+    if (!targetCategory || targetCategory === 'All Collections' || targetCategory === 'All') {
+      return true;
+    }
+    if (targetCategory === 'Sale') {
+      return productCategory === 'Sale';
+    }
+    const normProduct = productCategory.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const normTarget = targetCategory.toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (normProduct === normTarget) return true;
+
+    // Forgiving matches for compound apparel names
+    if (
+      (normTarget.includes('kurta') || normTarget.includes('tunic')) &&
+      (normProduct.includes('kurta') || normProduct.includes('tunic'))
+    ) {
+      return true;
+    }
+    if (normTarget.includes('coord') && normProduct.includes('coord')) {
+      return true;
+    }
+    if (normTarget.includes('dress') && normProduct.includes('dress')) {
+      return true;
+    }
+    if (normTarget.includes('kaftan') && normProduct.includes('kaftan')) {
+      return true;
+    }
+    if (normTarget.includes('bedsheet') && normProduct.includes('bedsheet')) {
+      return true;
+    }
+    if (normTarget.includes('home') && normProduct.includes('home')) {
+      return true;
+    }
+    if (normTarget.includes('gift') && normProduct.includes('gift')) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // Sync category changes with filters & clean sub-filters
   const handleSelectCategory = (cat: string) => {
     setActiveCategory(cat);
-    setFilters((prev) => ({
-      ...prev,
+    setFilters({
       category: cat,
-      onSaleOnly: cat === 'Sale',
-      sizes: [],
+      minPrice: 0,
+      maxPrice: 200,
       fabrics: [],
-    }));
+      sizes: [],
+      colors: [],
+      inStockOnly: false,
+      onSaleOnly: cat === 'Sale',
+    });
 
     setTimeout(() => {
       const el = document.getElementById('catalog-grid');
@@ -96,13 +140,15 @@ export default function App() {
     const targetCat = activeCategory !== 'All Collections' ? activeCategory : filters.category;
     if (targetCat !== 'All Collections') {
       if (targetCat === 'Sale') {
-        list = list.filter((p) => p.category === 'Sale' || p.onSale || (p.originalPrice && p.originalPrice > p.price));
+        list = list.filter(
+          (p) => p.category === 'Sale' || p.onSale || (p.originalPrice && p.originalPrice > p.price)
+        );
       } else {
-        list = list.filter((p) => p.category === targetCat);
+        list = list.filter((p) => matchesCategory(p.category, targetCat));
       }
     }
 
-    // 2. Price Range (only if filtered from default range)
+    // 2. Price Range (only if user changed range)
     if (filters.minPrice > 0 || filters.maxPrice < 200) {
       list = list.filter((p) => p.price >= filters.minPrice && p.price <= filters.maxPrice);
     }
@@ -132,7 +178,9 @@ export default function App() {
 
     // 7. On Sale Only (apply only if not already filtered by a specific category)
     if (filters.onSaleOnly && targetCat === 'All Collections') {
-      list = list.filter((p) => p.category === 'Sale' || p.onSale || (p.originalPrice && p.originalPrice > p.price));
+      list = list.filter(
+        (p) => p.category === 'Sale' || p.onSale || (p.originalPrice && p.originalPrice > p.price)
+      );
     }
 
     // 8. Sorting
@@ -157,10 +205,10 @@ export default function App() {
     count += filters.sizes.length;
     count += filters.colors.length;
     if (filters.inStockOnly) count++;
-    if (filters.onSaleOnly) count++;
+    if (filters.onSaleOnly && activeCategory !== 'Sale') count++;
     if (filters.minPrice > 0 || filters.maxPrice < 200) count++;
     return count;
-  }, [filters]);
+  }, [filters, activeCategory]);
 
   const handleResetFilters = () => {
     setFilters({
@@ -411,7 +459,12 @@ export default function App() {
         filters={filters}
         currency={currency}
         onClose={() => setIsFilterDrawerOpen(false)}
-        onUpdateFilters={setFilters}
+        onUpdateFilters={(newFilters) => {
+          setFilters(newFilters);
+          if (newFilters.category && newFilters.category !== activeCategory) {
+            setActiveCategory(newFilters.category);
+          }
+        }}
         onResetFilters={handleResetFilters}
         totalResultsCount={displayedProducts.length}
       />

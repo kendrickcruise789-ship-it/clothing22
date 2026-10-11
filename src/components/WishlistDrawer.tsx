@@ -1,6 +1,7 @@
 import React from 'react';
 import { Product, Currency } from '../types';
 import { formatPrice } from '../utils/currency';
+import { SafeImage } from './SafeImage';
 import { X, Heart, ShoppingBag, Trash2 } from 'lucide-react';
 
 interface WishlistDrawerProps {
@@ -71,18 +72,11 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
                 className="flex gap-4 p-3 bg-white border border-[#EFE9DF] transition-all"
               >
                 <div className="w-20 h-24 bg-[#F4EFEA] shrink-0 overflow-hidden border border-[#EDE6DC]">
-                  <img
+                  <SafeImage
                     src={product.image}
                     alt={product.title}
-                    referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (!target.dataset.triedPublic && product.image) {
-                        target.dataset.triedPublic = 'true';
-                        const filename = product.image.split('/').pop()?.split('?')[0];
-                        if (filename) target.src = `/images/${filename}`;
-                      }
-                    }}
+                    category={product.category}
+                    fallbackLabel={product.title}
                     className="w-full h-full object-cover object-top"
                   />
                 </div>

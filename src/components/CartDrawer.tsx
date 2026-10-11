@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CartItem, Currency } from '../types';
 import { formatPrice } from '../utils/currency';
+import { SafeImage } from './SafeImage';
 import { X, Trash2, Gift, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface CartDrawerProps {
@@ -151,18 +152,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               >
                 {/* Thumbnail */}
                 <div className="w-20 h-24 bg-[#F4EFEA] shrink-0 overflow-hidden border border-[#EDE6DC]">
-                  <img
+                  <SafeImage
                     src={item.product.image}
                     alt={item.product.title}
-                    referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (!target.dataset.triedPublic && item.product.image) {
-                        target.dataset.triedPublic = 'true';
-                        const filename = item.product.image.split('/').pop()?.split('?')[0];
-                        if (filename) target.src = `/images/${filename}`;
-                      }
-                    }}
+                    category={item.product.category}
+                    fallbackLabel={item.product.title}
                     className="w-full h-full object-cover object-top"
                   />
                 </div>

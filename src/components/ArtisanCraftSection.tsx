@@ -1,5 +1,6 @@
 import React from 'react';
 import { CRAFT_IMAGE } from '../data/products';
+import { SafeImage } from './SafeImage';
 import { Sparkles, Leaf, HeartHandshake } from 'lucide-react';
 
 export const ArtisanCraftSection: React.FC = () => {
@@ -26,20 +27,11 @@ export const ArtisanCraftSection: React.FC = () => {
           {/* Left Column: Image */}
           <div className="lg:col-span-7 relative">
             <div className="relative aspect-[16/10] lg:h-full overflow-hidden bg-[#EDE6DC] shadow-md">
-              <img
+              <SafeImage
                 src={CRAFT_IMAGE}
                 alt="Artisan hands using carved teak block on organic cotton textile"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  if (!target.dataset.triedPublic && CRAFT_IMAGE) {
-                    target.dataset.triedPublic = 'true';
-                    const filename = CRAFT_IMAGE.split('/').pop()?.split('?')[0];
-                    if (filename) {
-                      target.src = `/images/${filename}`;
-                    }
-                  }
-                }}
+                category="Craft"
+                fallbackLabel="Jaipur Workshop"
                 className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent flex items-end p-6">

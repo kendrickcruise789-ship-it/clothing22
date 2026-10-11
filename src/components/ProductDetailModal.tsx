@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, Currency, ProductColor } from '../types';
 import { formatPrice } from '../utils/currency';
+import { SafeImage } from './SafeImage';
 import {
   X,
   Heart,
@@ -43,6 +44,15 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const [quantity, setQuantity] = useState(1);
   const [addedNotice, setAddedNotice] = useState(false);
 
+  // Sync state if a different product is opened
+  useEffect(() => {
+    if (product) {
+      setSelectedSize(product.sizes[0] || 'Standard');
+      setSelectedColor(product.colors[0]);
+      setQuantity(1);
+    }
+  }, [product?.id]);
+
   // Accordion states
   const [openSection, setOpenSection] = useState<'craft' | 'fabric' | 'care' | 'shipping' | null>('craft');
 
@@ -80,20 +90,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           {/* Left Column: Image Gallery */}
           <div className="md:col-span-6 space-y-4">
             <div className="relative aspect-[3/4] w-full bg-[#F4EFEA] overflow-hidden border border-[#EDE6DC]">
-              <img
+              <SafeImage
                 src={product.image}
                 alt={product.title}
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  if (!target.dataset.triedPublic && product.image) {
-                    target.dataset.triedPublic = 'true';
-                    const filename = product.image.split('/').pop()?.split('?')[0];
-                    if (filename) {
-                      target.src = `/images/${filename}`;
-                    }
-                  }
-                }}
+                category={product.category}
+                fallbackLabel={product.title}
                 className="w-full h-full object-cover object-top"
               />
               <button

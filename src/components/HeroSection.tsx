@@ -1,5 +1,6 @@
 import React from 'react';
 import { HERO_IMAGE } from '../data/products';
+import { SafeImage } from './SafeImage';
 import { ArrowRight, Sparkles } from 'lucide-react';
 
 interface HeroSectionProps {
@@ -63,20 +64,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           {/* Right: Editorial Image */}
           <div className="lg:col-span-7 relative">
             <div className="relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-[4/3] overflow-hidden bg-[#EDE6DC] shadow-lg">
-              <img
+              <SafeImage
                 src={HERO_IMAGE}
                 alt="Clotex Solstice Collection hand block-printed tiered maxi dress"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  if (!target.dataset.triedPublic && HERO_IMAGE) {
-                    target.dataset.triedPublic = 'true';
-                    const filename = HERO_IMAGE.split('/').pop()?.split('?')[0];
-                    if (filename) {
-                      target.src = `/images/${filename}`;
-                    }
-                  }
-                }}
+                category="Dresses"
+                fallbackLabel="Solstice Collection"
                 className="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-[1.02]"
               />
               

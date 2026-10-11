@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Product, Currency } from '../types';
 import { formatPrice } from '../utils/currency';
+import { SafeImage } from './SafeImage';
 import { Search, X, ArrowRight } from 'lucide-react';
 
 interface SearchModalProps {
@@ -114,17 +115,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                   className="pt-3 pb-2 flex items-center justify-between gap-4 cursor-pointer hover:bg-[#FAF7F2] p-2 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <img
+                    <SafeImage
                       src={p.image}
                       alt={p.title}
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        if (!target.dataset.triedPublic && p.image) {
-                          target.dataset.triedPublic = 'true';
-                          const filename = p.image.split('/').pop()?.split('?')[0];
-                          if (filename) target.src = `/images/${filename}`;
-                        }
-                      }}
+                      category={p.category}
+                      fallbackLabel={p.title}
                       className="w-12 h-14 object-cover bg-[#EDE6DC]"
                     />
                     <div>
